@@ -12,7 +12,7 @@ import parse
 def load_content(date):
     RESPONSE_FILE_NAME = 'response_{}.txt'.format(date.replace('.', '_'))
     try:
-        with open(RESPONSE_FILE_NAME, 'r') as f:
+        with open(RESPONSE_FILE_NAME, 'r', encoding='utf-8') as f:
             content = f.read()
     except:
         return print('Отказ: файл {} не найден!'.format(RESPONSE_FILE_NAME))

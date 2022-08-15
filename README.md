@@ -93,7 +93,7 @@ python client.py 10.08.2022 826,840,978,156
 
     RESPONSE_FILE_NAME = 'tests/response__08_08_2022.txt'
     try:
-        with open(RESPONSE_FILE_NAME, 'r') as f:
+        with open(RESPONSE_FILE_NAME, 'r', encoding='utf-8') as f:
             response = f.read()
     except:
         logs.logger.warning('Файл {} не найден'.format(RESPONSE_FILE_NAME))

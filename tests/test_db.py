@@ -12,9 +12,9 @@ sys.path.append(client_cbr_path)
 import db
 
 date = '08.08.2022'
-rates1 = [('test1', 'test1', 'test1', 111, '11111')]
-rates2 = [('test1', 'test1', 'test1', 111, '11111'),
-          ('test2', 'test2', 'test2', 222, '22222')]
+rates1 = [{'Vname':'test1', 'Vnom':'111', 'Vcurs':'11111', 'Vcode':'test1', 'VchCode':'test1'}]
+rates2 = [{'Vname':'test1', 'Vnom':'111', 'Vcurs':'11111', 'Vcode':'test1', 'VchCode':'test1'},
+          {'Vname':'test2', 'Vnom':'222', 'Vcurs':'22222', 'Vcode':'test2', 'VchCode':'test2'}]
 date2 = '09.09.2022'
 
 #---------------------------------------------------------------------------
@@ -50,7 +50,8 @@ def test_check_data(db_cursor):
     db_cursor.insert_date(date)
     db_cursor.insert_rates(date, rates1)
     result = db_cursor.check_data(date,rates2)
-    assert result == [('test2', 'test2', 'test2', 222, '22222')]
+    assert result == [{'Vname':'test2', 'Vnom':'222', 'Vcurs':'22222', 'Vcode':'test2', 'VchCode':'test2'}]
+
 
 #---------------------------------------------------------------------------
 # Проверка корректности работы функции выборки данных из БД

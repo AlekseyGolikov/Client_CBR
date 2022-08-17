@@ -83,7 +83,7 @@ class DB:
             Проверяем существует ли в таблице CURRENCY_ORDER запись со значением date
             сли нет, то записываем новую дату
         :param date: Заданная дата
-        :return:
+        :return lastrowid: индекс последней выполненной записи (используется для тестирования)
         """
         try:
             query = """
@@ -110,9 +110,7 @@ class DB:
         """
             Запись данных в БД
         :param date:  заданная дата
-        :param items: заданный список курсов валют
-                      Формат: [(name_1, numeric_code_1, alphabetic_code_1, scale_1, rate_1),
-                               (name_2, numeric_code_2, alphabetic_code_2, scale_2, rate_2), ... ]
+        :param items: список со словарями курсов валют
         :return: None
         """
 
@@ -127,7 +125,7 @@ class DB:
                         VALUES ((SELECT id FROM CURRENCY_ORDERS WHERE ondate=?), ?, ?, ?, ?, ?);
                     """
             for item in self.__newest_rates_list:
-                self.__cur.execute(query, ((date), item[0], item[1], item[2], item[3], item[4]))
+                self.__cur.execute(query, ((date), item['Vname'], item['Vcode'], item['VchCode'], int(item['Vnom']), item['Vcurs']))
                 self.__con.commit()
                 logs.logger.info('Данные записаны в БД: {}'.format(item))
         except sqlite3.OperationalError as ex:
@@ -137,16 +135,12 @@ class DB:
 
     def check_data(self, date, rates):
         """
-        Проверка входных данных. Если в БД имеются записи по дате date и по списку rates,
-        то функция формирует и возвращает список тех записей из исходного rates,
-        которые отсутствуют в БД
-        :param date: заданная дата; формат 'ДД.ММ.ГГГГ'
-        :param rates: отобранный из ответа сервера список курсов валют
-                Формат ввода: [(name_1, numeric_code_1, alphabetic_code_1, scale_1, rate_1),
-                               (name_2, numeric_code_2, alphabetic_code_2, scale_2, rate_2), ... ]
-        :return: список курсов, отсутствующих в БД, которые необходимо дописать для текущей даты date
-                Формат вывода: ('ДД.ММ.ГГГГ', [(name_1, numeric_code_1, alphabetic_code_1, scale_1, rate_1),
-                                               (name_2, numeric_code_2, alphabetic_code_2, scale_2, rate_2), ... ])
+            Проверка входных данных. Если в БД имеются записи по дате date и по списку rates,
+            то функция формирует и возвращает список тех записей из исходного rates,
+            которые отсутствуют в БД
+            :param date: заданная дата; формат 'ДД.ММ.ГГГГ'
+            :param rates: отобранный из ответа сервера список со словарями курсов валют
+            :return: список курсов, отсутствующих в БД, которые необходимо дописать для текущей даты date
         """
         try:
             query = """
@@ -160,16 +154,12 @@ class DB:
 
                 # Формат written_rates_list: [(numeric_code_1,), (numeric_code_2,), ...]
             written_rates_list = self.__cur.fetchall()
-
-                # Формат newest_rates_list: [(name_1, numeric_code_1, alphabetic_code_1, scale_1, rate_1),
-            #                                (name_2, numeric_code_2, alphabetic_code_2, scale_2, rate_2), ... ]
+            written_rates_list = [val for (val,) in written_rates_list]
+            c=1
             self.__newest_rates_list = []
 
-                # Формат rates: [(name_1, numeric_code_1, alphabetic_code_1, scale_1, rate_1),
-            #                    (name_2, numeric_code_2, alphabetic_code_2, scale_2, rate_2), ... ]
             for rate in rates:
-                        # row[1] == CURRENCY_RATES.numeric_code, выборка из БД
-                if not (rate[1],) in written_rates_list:
+                if not rate['Vcode'] in written_rates_list:
                     self.__newest_rates_list.append(rate)
                 else:
                     logs.logger.warning('Запись отклонена: {}'.format(rate))
@@ -184,8 +174,6 @@ class DB:
             указанную во входных аргументах скрипта
         :param date: заданная дата
         :return: Выборка курсов за заданную дату
-                Формат: [(order_id_1, name_1, numeric_code_1, alphabetic_code_1, scale_1, rate_1),
-                         (order_id_2, name_2, numeric_code_2, alphabetic_code_2, scale_2, rate_2), ... ]
         """
         try:
             query = """

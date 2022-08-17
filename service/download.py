@@ -57,7 +57,6 @@ def download(date):
             logs.logger.warning('Отказ. Код ответа сервера: {}'.format(response.status_code))
             return False
         logs.logger.info('Успешно получен ответ от сервера')
-        # print(response.request.headers)
         return response.text
 
     # код для тестового режима (подробно см. README.md)

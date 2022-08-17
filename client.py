@@ -5,7 +5,7 @@ from service.validation import validate_date, validate_codes, validate_input
 import logs
 
 
-def coroutine(func):
+def init_coroutine(func):
     def wrapper(*args,**kwargs):
         gen = func(*args,**kwargs)
         next(gen)
@@ -13,7 +13,7 @@ def coroutine(func):
     return wrapper
 
 
-@coroutine
+@init_coroutine
 def download_handler(successor=None):
     date, list_of_codes = (yield)
     try:
@@ -27,7 +27,7 @@ def download_handler(successor=None):
         successor.send(data)
 
 
-@coroutine
+@init_coroutine
 def parse_handler(successor=None):
     date, list_of_codes, xml_response = (yield)
     try:
@@ -46,7 +46,7 @@ def parse_handler(successor=None):
         successor.send(data)
 
 
-@coroutine
+@init_coroutine
 def db_handler(successor=None):
     date, list_of_currency_data = (yield)
     with db.DB_manager() as d:
@@ -62,7 +62,7 @@ def db_handler(successor=None):
         successor.send(data)
 
 
-@coroutine
+@init_coroutine
 def print_handler():
     date, list_of_courses = (yield)
     p = display.MakeTable(date, list_of_courses)
@@ -72,7 +72,7 @@ def print_handler():
     sys.exit(0)
 
 
-@coroutine
+@init_coroutine
 def validation_handler(successor=None):
 
     event = (yield)

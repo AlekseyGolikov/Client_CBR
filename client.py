@@ -39,11 +39,7 @@ def parse_handler(successor=None):
         else:
             list_of_currency_data = False
         data = (date, list_of_currency_data)
-        # list_of_currency_data = parse.parse(list_of_codes, xml_response)
-        #     # Проверка на наличие исключений
-        # if list_of_currency_data is None:
-        #     raise
-        # data = (date, list_of_currency_data)
+
     except:
         sys.exit(1)
     else:
@@ -64,7 +60,6 @@ def db_handler(successor=None):
         print_courses = d.select(date)
         data = (date, print_courses)
         successor.send(data)
-        # [print(row) for row in res]
 
 
 @coroutine
@@ -103,7 +98,5 @@ pipeline = validation_handler(download_handler(parse_handler(db_handler(print_ha
 
 
 if __name__=='__main__':
-    # sys.argv.append('08.08.2022')      # исходные данные для тестового режима
-    # sys.argv.append('364,51,124')      # исходные данные для тестового режима
     pipeline.send('go!')
 

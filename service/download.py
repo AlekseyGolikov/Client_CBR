@@ -74,8 +74,4 @@ def download(date):
 
 if __name__=='__main__':
     download(str(datetime.datetime(year=2022, month=8, day=8)).replace(' ','T'))
-    # response = requests.post(url, data=body, headers=headers)
-    # print(response)
-    # print(response.content)
-    # with open('response.txt','wb') as f:
-    #     f.write(response.content)
+

@@ -74,7 +74,5 @@ def validate_codes(s):
 if __name__=='__main__':
     print(sys.argv)
     print(validate_input())
-    # sys.argv.append('08.08.2022')
-    # sys.argv.append('123,234,23234')
     print(validate_date(sys.argv[1]))
     print(validate_codes(sys.argv[2]))

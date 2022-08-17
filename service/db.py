@@ -203,7 +203,6 @@ class DB:
             """
             self.__cur.execute(query, (date,))
             res = self.__cur.fetchall()
-            # [print(row) for row in res]
             if res == []:
                 res = False
             return res
@@ -216,7 +215,6 @@ class DB:
 
 if __name__=='__main__':
     date1 = '08.08.2022'
-    # (name, numeric_code, alphabetic_code, scale, rate)
     test1 = [('test1', 'test1', 'test1', 111, '11111'),
              ('test2', 'test2', 'test2', 222, '22222'),
              ('test3', 'test3', 'test3', 333, '33333')]

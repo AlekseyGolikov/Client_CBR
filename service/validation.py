@@ -1,4 +1,5 @@
 
+from .exceptions import DateOutOfRangeError, ValidateInputError, ValidateDateError, ValidateCodeError
 from datetime import datetime
 import sys
 import logs
@@ -11,12 +12,9 @@ def validate_input():
     try:
         sys.argv[1]
         sys.argv[2]
-    except Exception:
-        print('     Дата и/или список кодов не введены!')
-        print('     Пожалуйста, повторите ввод.')
-        print('     Формат ввода даты: ДД.ММ.ГГГГ')
-        print('     Формат ввода кодов: ХХ,ХХХ,...; кол-во цифр в коде: 2 или 3;')
+    except:
         logs.logger.error('Дата и/или список кодов не введены!')
+        raise ValidateInputError()
     else:
         return True
 
@@ -28,14 +26,18 @@ def validate_date(date):
     :param date: введенная дата
     """
     try:
-        datetime.strptime(date, "%d.%m.%Y")
-        logs.logger.info('Дата введена корректно: {}'.format(date))
-        return date
+        current_date = datetime.now()
+        input_date = datetime.strptime(date, "%d.%m.%Y")
     except Exception:
-        print('     Дата введена не корректно!')
-        print('     Пожалуйста, повторите ввод.')
-        print('     Формат ввода: ДД.ММ.ГГГГ')
         logs.logger.error('Дата введена не корректно!')
+        raise ValidateDateError()
+
+    if input_date > current_date:
+        logs.logger.error('Введенная дата {} больше текущей!'.format(date))
+        raise DateOutOfRangeError(date)
+
+    logs.logger.info('Дата введена корректно: {}'.format(date))
+    return date
 
 
 def validate_codes(s):
@@ -49,7 +51,8 @@ def validate_codes(s):
     """
     try:
 
-        if len(sys.argv)>3:                # проверка на присутствие пробелов в списке с кодами
+        # if len(sys.argv)>3:
+        if len(s) > 1:                       # проверка на присутствие пробелов в списке с кодами
             raise Exception
 
         l = s[0].split(',')                # преобразование строки с кодами в список
@@ -65,9 +68,7 @@ def validate_codes(s):
         logs.logger.info('Список кодов введён корректно: {}'.format(l))
         return l
     except Exception:
-        print('     Список кодов введён не корректно!')
-        print('     Пожалуйста, повторите ввод.')
-        print('     Формат ввода: ХХ,ХХХ,...; кол-во цифр в коде: 2 или 3;')
+        raise ValidateCodeError()
         logs.logger.error('Список кодов введён не корректно!')
 
 

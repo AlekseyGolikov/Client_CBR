@@ -47,29 +47,29 @@ def download(date):
     </soap12:Envelope>""".format(str(datetime.datetime.strptime(date, "%d.%m.%Y")).replace(' ','T'))
 
     # код для реального режима использования (подробно см. README.md)
-    try:
-        response = requests.post(url, data=body, headers=headers, timeout=5)
-    except requests.exceptions.RequestException:
-        logs.logger.warning('Невозможно установить соединение с web-сервером: {}'.format(response.status_code))
-        return False
-    else:
-        if response.status_code != 200:
-            logs.logger.warning('Отказ. Код ответа сервера: {}'.format(response.status_code))
-            return False
-        logs.logger.info('Успешно получен ответ от сервера')
-        return response.text
+    # try:
+    #     response = requests.post(url, data=body, headers=headers, timeout=5)
+    # except requests.exceptions.RequestException:
+    #     logs.logger.warning('Невозможно установить соединение с web-сервером: {}'.format(response.status_code))
+    #     return False
+    # else:
+    #     if response.status_code != 200:
+    #         logs.logger.warning('Отказ. Код ответа сервера: {}'.format(response.status_code))
+    #         return False
+    #     logs.logger.info('Успешно получен ответ от сервера')
+    #     return response.text
 
     # код для тестового режима (подробно см. README.md)
-    # RESPONSE_FILE_NAME = 'tests/response_08_08_2022.txt'
-    # try:
-    #     with open(RESPONSE_FILE_NAME, 'r', encoding='utf-8') as f:
-    #         response = f.read()
-    #     logs.logger.warning('Исходные данные успешно загружены из файла {}'.format(RESPONSE_FILE_NAME))
-    # except:
-    #     logs.logger.warning('Файл {} не найден'.format(RESPONSE_FILE_NAME))
-    #     response = False
-    # finally:
-    #     return response
+    RESPONSE_FILE_NAME = 'tests/response_08_08_2022.txt'
+    try:
+        with open(RESPONSE_FILE_NAME, 'r') as f:
+            response = f.read()
+        logs.logger.warning('Исходные данные успешно загружены из файла {}'.format(RESPONSE_FILE_NAME))
+    except:
+        logs.logger.warning('Файл {} не найден'.format(RESPONSE_FILE_NAME))
+        response = False
+    finally:
+        return response
 
 if __name__=='__main__':
     download(str(datetime.datetime(year=2022, month=8, day=8)).replace(' ','T'))

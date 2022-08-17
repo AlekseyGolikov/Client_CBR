@@ -3,9 +3,10 @@ import sys
 from service import download, parse, db, display
 from service.validation import validate_date, validate_codes, validate_input
 import logs
+from service.exceptions import ValidateInputError, ValidateDateError, ValidateCodeError, DateOutOfRangeError
 
 
-def init_coroutine(func):
+def init_handler(func):
     def wrapper(*args,**kwargs):
         gen = func(*args,**kwargs)
         next(gen)
@@ -13,7 +14,7 @@ def init_coroutine(func):
     return wrapper
 
 
-@init_coroutine
+@init_handler
 def download_handler(successor=None):
     date, list_of_codes = (yield)
     try:
@@ -27,7 +28,7 @@ def download_handler(successor=None):
         successor.send(data)
 
 
-@init_coroutine
+@init_handler
 def parse_handler(successor=None):
     date, list_of_codes, xml_response = (yield)
     try:
@@ -46,7 +47,7 @@ def parse_handler(successor=None):
         successor.send(data)
 
 
-@init_coroutine
+@init_handler
 def db_handler(successor=None):
     date, list_of_currency_data = (yield)
     with db.DB_manager() as d:
@@ -62,7 +63,7 @@ def db_handler(successor=None):
         successor.send(data)
 
 
-@init_coroutine
+@init_handler
 def print_handler():
     date, list_of_courses = (yield)
     p = display.MakeTable(date, list_of_courses)
@@ -72,14 +73,13 @@ def print_handler():
     sys.exit(0)
 
 
-@init_coroutine
+@init_handler
 def validation_handler(successor=None):
 
     event = (yield)
     try:
         if validate_input() is None:
             raise
-
 
         if (date := validate_date(sys.argv[1])) is None:
             raise
@@ -88,7 +88,8 @@ def validation_handler(successor=None):
             raise
 
         data = (date, list_of_codes)
-    except:
+    except Exception as ex:
+        print(ex)
         sys.exit(1)
     else:
         successor.send(data)

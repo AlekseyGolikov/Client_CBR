@@ -58,18 +58,12 @@ def db_handler(successor=None):
         if list_of_currency_data:
             d.insert_date(date)
             d.insert_rates(date, list_of_currency_data)
-        print_courses = d.select(date)
-        data = (date, print_courses)
-        successor.send(data)
+        successor.send(date)
 
 
 @init_handler
 def print_handler():
-    date, list_of_courses = (yield)
-    # p = display.MakeTable(date, list_of_courses)
-    # p.header()
-    # p.row()
-    # p.footer()
+    date = (yield)
     with db.DB_manager() as d:
         d.select_pretty(date)
     sys.exit(0)

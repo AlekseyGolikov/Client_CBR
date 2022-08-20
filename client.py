@@ -1,6 +1,6 @@
 
 import sys
-from service import download, parse, db, display
+from service import download, parse, db, display, pretty_display
 from service.validation import validate_date, validate_codes, validate_input
 import logs
 from service.exceptions import ValidateInputError, ValidateDateError, ValidateCodeError, DateOutOfRangeError
@@ -66,10 +66,12 @@ def db_handler(successor=None):
 @init_handler
 def print_handler():
     date, list_of_courses = (yield)
-    p = display.MakeTable(date, list_of_courses)
-    p.header()
-    p.row()
-    p.footer()
+    # p = display.MakeTable(date, list_of_courses)
+    # p.header()
+    # p.row()
+    # p.footer()
+    with db.DB_manager() as d:
+        d.select_pretty(date)
     sys.exit(0)
 
 

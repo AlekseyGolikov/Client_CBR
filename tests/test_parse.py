@@ -2,12 +2,15 @@
 import pytest
 import sys, os
 
+
 service_path=os.getcwd().replace('tests','service')
 client_cbr_path=os.getcwd().replace('/tests','')
 sys.path.append(service_path)
 sys.path.append(client_cbr_path)
 
+
 import parse
+
 
 def load_content(date):
     RESPONSE_FILE_NAME = 'response_{}.txt'.format(date.replace('.', '_'))
@@ -18,6 +21,7 @@ def load_content(date):
         return print('Отказ: файл {} не найден!'.format(RESPONSE_FILE_NAME))
     else:
         return content
+
 
 #---------------------------------------------------------------------------
 # Проверка корректности работы функции парсинга ответа удаленного web-сервиса

@@ -1,5 +1,11 @@
 import sqlite3
+
+import prettytable
+from prettytable import PrettyTable
+
 import logs
+from service.exceptions import DB_Error_CreateTables, DB_Error_InsertDate, DB_Error_InsertRates, DB_Error_check_data, \
+    DB_Error_select
 
 
 class DB_manager:
@@ -29,11 +35,11 @@ class DB:
                 self.__cur.execute(query)
                 c = self.__cur.fetchone()
             except sqlite3.OperationalError:
-                db_not_created = True
+                db_not_yet_created = True
             else:
-                db_not_created = False
+                db_not_yet_created = False
 
-            if db_not_created is True:
+            if db_not_yet_created is True:
                 """
                     Таблица "Распоряжение о загрузке курсов"
                     .id     : int (первичный ключ, автоинкремент)       - номер распоряжения
@@ -76,6 +82,7 @@ class DB:
                 logs.logger.info('Создана таблица CURRENCY_RATES')
         except sqlite3.OperationalError as ex:
             logs.logger.error('Ошибка БД [этап создания таблиц]: {}'.format(ex))
+            raise DB_Error_CreateTables
 
 
     def insert_date(self, date):
@@ -102,6 +109,7 @@ class DB:
                 logs.logger.warning('Запись даты {} отклонена'.format(date))
         except sqlite3.OperationalError as ex:
                 logs.logger.error('Ошибка БД [этап записи даты]: {}'.format(ex))
+                raise DB_Error_InsertDate
         else:
             return self.__cur.lastrowid       # Получение ответа от БД о факте удачной записи в БД
 
@@ -130,6 +138,7 @@ class DB:
                 logs.logger.info('Данные записаны в БД: {}'.format(item))
         except sqlite3.OperationalError as ex:
                 logs.logger.error('Ошибка БД [этап записи курсов]: {}'.format(ex))
+                raise DB_Error_InsertRates
         else:
             return self.__cur.lastrowid       # Получение ответа от БД о факте удачной записи в БД
 
@@ -165,6 +174,7 @@ class DB:
                     logs.logger.warning('Запись отклонена: {}'.format(rate))
         except sqlite3.OperationalError as ex:
                 logs.logger.error('Ошибка БД [этап проверки наличия ранее записанных курсов]: {}'.format(ex))
+                raise DB_Error_check_data
         else:
             return self.__newest_rates_list         # Получение списка кодов под запись в БД для тестовой функции
 
@@ -196,6 +206,38 @@ class DB:
             return res
         except sqlite3.OperationalError as ex:
                 logs.logger.error('Ошибка БД [этап чтения курсов за определённую дату]: {}'.format(ex))
+                raise DB_Error_select
+
+    def select_pretty(self, date):
+        """
+            Метод выводит на экран все курсы из БД за дату,
+            указанную во входных аргументах скрипта
+        :param date: заданная дата
+        :return: Выборка курсов за заданную дату
+        """
+        try:
+            query = """
+                SELECT
+                    CURRENCY_RATES.order_id,
+                    CURRENCY_RATES.name,
+                    CURRENCY_RATES.alphabetic_code,
+                    CURRENCY_RATES.numeric_code,
+                    CURRENCY_RATES.scale,
+                    CURRENCY_RATES.rate
+                FROM CURRENCY_RATES
+                    JOIN CURRENCY_ORDERS
+                    WHERE CURRENCY_ORDERS.id=CURRENCY_RATES.order_id AND CURRENCY_ORDERS.ondate=?
+                    ORDER BY CURRENCY_RATES.alphabetic_code
+            """
+            self.__cur.execute(query, (date,))
+
+            self.__mytable = PrettyTable()
+            self.__mytable.field_names = ['Номер р-я', 'Наименование валюты', 'Цифр. код', 'Букв. код', 'Номинал', 'Зн-е курса']
+            self.__mytable = prettytable.from_db_cursor(self.__cur)
+            print(self.__mytable)
+        except sqlite3.OperationalError as ex:
+                logs.logger.error('Ошибка БД [этап чтения курсов за определённую дату]: {}'.format(ex))
+                raise DB_Error_select
 
     def close(self):
         self.__con.close()

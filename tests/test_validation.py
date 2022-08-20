@@ -19,6 +19,7 @@ def test_validate_date(input, expected):
     assert validation.validate_date(input) == expected
                     # xfail - пометка набора параметров, которые ожидаемо приведут к сбою
 
+
 #---------------------------------------------------------------------------
 # Проверка валидности ввода кодов
 @pytest.mark.parametrize('input,expected',[(['36,51,124'],['36','51','124']),
@@ -54,8 +55,9 @@ def prepare_sys_args():
     for arg in args:
         sys.argv.append(arg)
 
+
 #---------------------------------------------------------------------------
-# Проверка обязательного наличия введенных даты и списка кодов
+# Проверка ожидаемого исключения при невведённых дате и списке кодов
 def test_validate_input(prepare_sys_args):
     """
         Проверка факта ввода даты и списка кодов
@@ -63,4 +65,3 @@ def test_validate_input(prepare_sys_args):
     """
     with pytest.raises(Exception):
         validation.validate_input()
-

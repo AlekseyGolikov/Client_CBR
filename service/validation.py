@@ -1,8 +1,9 @@
 
-from .exceptions import DateOutOfRangeError, ValidateInputError, ValidateDateError, ValidateCodeError
+from service.exceptions import DateOutOfRangeError, ValidateInputError, ValidateDateError, ValidateCodeError
 from datetime import datetime
 import sys
 import logs
+import re
 
 
 def validate_input():
@@ -52,21 +53,30 @@ def validate_codes(s):
     try:
 
         # if len(sys.argv)>3:
-        if len(s) > 1:                       # проверка на присутствие пробелов в списке с кодами
+        if len(s) > 1:                      # проверка на присутствие пробелов в списке с кодами
             raise Exception
 
-        l = s[0].split(',')                # преобразование строки с кодами в список
+        l = s[0].split(',')                 # преобразование строки с кодами в список
 
-        try:
-            m = [int(x) for x in l]        # проверка на наличие нецифровых символов во введенном списке с цифровыми кодами
-        except:
+        pat = re.compile('\D+')             # шаблон для проверки наличия в строке нецифровых символов
+        m = [x for x in l if pat.findall(x) != [] or len(x) > 3 or len(x) < 2]
+        # print(m)
+        if m != []:
             raise Exception
 
-        n = [x for x in l if len(x)!=2 and len(x)!=3]     # каждый введенный код должен быть либо 2-х, либо 3-х значным числом
-        if len(n)>0:
-            raise Exception
         logs.logger.info('Список кодов введён корректно: {}'.format(l))
+
         return l
+        # try:
+        #     m = [int(x) for x in l]        # проверка на наличие нецифровых символов во введенном списке с цифровыми кодами
+        # except:
+        #     raise Exception
+        #
+        # n = [x for x in l if len(x)!=2 and len(x)!=3]     # каждый введенный код должен быть либо 2-х, либо 3-х значным числом
+        # if len(n)>0:
+        #     raise Exception
+        # logs.logger.info('Список кодов введён корректно: {}'.format(l))
+        # return l
     except Exception:
         raise ValidateCodeError()
         logs.logger.error('Список кодов введён не корректно!')

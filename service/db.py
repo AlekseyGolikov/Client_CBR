@@ -189,7 +189,7 @@ class DB:
                     WHERE CURRENCY_ORDERS.id=CURRENCY_RATES.order_id AND CURRENCY_ORDERS.ondate=?
                     ORDER BY CURRENCY_RATES.alphabetic_code
             """
-            self.__cur.execute(query, (date,))
+            res = self.__cur.execute(query, (date,))
             res = self.__cur.fetchall()
             if res == []:
                 res = False

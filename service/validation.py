@@ -29,7 +29,7 @@ def validate_date(date):
     try:
         current_date = datetime.now()
         input_date = datetime.strptime(date, "%d.%m.%Y")
-    except Exception:
+    except:
         logs.logger.error('Дата введена не корректно!')
         raise ValidateDateError()
 
@@ -54,7 +54,7 @@ def validate_codes(s):
 
         # if len(sys.argv)>3:
         if len(s) > 1:                      # проверка на присутствие пробелов в списке с кодами
-            raise Exception
+            raise
 
         l = s[0].split(',')                 # преобразование строки с кодами в список
 
@@ -62,24 +62,15 @@ def validate_codes(s):
         m = [x for x in l if pat.findall(x) != [] or len(x) > 3 or len(x) < 2]
         # print(m)
         if m != []:
-            raise Exception
+            raise
 
         logs.logger.info('Список кодов введён корректно: {}'.format(l))
 
         return l
-        # try:
-        #     m = [int(x) for x in l]        # проверка на наличие нецифровых символов во введенном списке с цифровыми кодами
-        # except:
-        #     raise Exception
-        #
-        # n = [x for x in l if len(x)!=2 and len(x)!=3]     # каждый введенный код должен быть либо 2-х, либо 3-х значным числом
-        # if len(n)>0:
-        #     raise Exception
-        # logs.logger.info('Список кодов введён корректно: {}'.format(l))
-        # return l
-    except Exception:
-        raise ValidateCodeError()
+
+    except:
         logs.logger.error('Список кодов введён не корректно!')
+        raise ValidateCodeError()
 
 
 if __name__=='__main__':
